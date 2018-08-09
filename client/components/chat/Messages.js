@@ -12,7 +12,7 @@ export default class Messages extends Component {
       ],
       roomNumber: '1',
       chatNumber: '1',
-      username: 'mango_fan'
+      username: localStorage.getItem('username')
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -34,7 +34,7 @@ export default class Messages extends Component {
     const newMessage = db
       // assign player to room
       .collection('rooms')
-      .doc(this.props.match.params.roomId)
+      .doc(this.props.roomId)
       .collection('chats')
       .add({
         username: this.state.username,
