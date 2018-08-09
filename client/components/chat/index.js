@@ -1,5 +1,19 @@
-import Input from './Input'
+// import Input from './Input'
 import Messages from './Messages'
-import Top from './Top'
+// import Top from './Top'
 
-export default {Top, Messages, Input}
+import React from 'react'
+
+// export default {Top, Messages, Input}
+
+const Chat = () => {
+  return (
+    <React.Fragment>
+      {/* <Top /> */}
+      <Messages />
+      {/* <Input /> */}
+    </React.Fragment>
+  )
+}
+
+export default Chat
