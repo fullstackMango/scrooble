@@ -1,12 +1,5 @@
 'use strict'
 
-/**
- * Creates a whiteboard on the page that the user can scribble on.
- *
- * Exports:
- *   - default draw(from, to, color, shouldBroadcast)
- *   - events: an EventEmitter that emits `draw` events.
- */
 import React, {Component} from 'react'
 import db from '../../../firestore.js'
 
@@ -14,52 +7,117 @@ export default class Canvas extends Component {
   constructor() {
     super()
     this.state = {
-      color: '#000000',
-      lineWidth: 6,
-      x: 0,
-      y: 0
+      record: false,
+      canvasData: []
     }
-    this.canvasData = []
+    this.handleMouseDown = this.handleMouseDown.bind(this)
+    this.handleMouseUp = this.handleMouseUp.bind(this)
+    this.handleMouseMove = this.handleMouseMove.bind(this)
+    this.roomId = 'aQFOGkBUusXJmGP808XR' // REPLACE WITH LINE
+    this.username = localStorage.getItem('username')
+    this.turnOrderArray = []
   }
   async componentDidMount() {
-    this.drawCanvas()
-    // const roomId = location.pathname.slice(1)
+    const playersCollectionInfo = await db
+      .collection(`rooms/${this.roomId}/players/`)
+      .get()
+    // console.log('gettin', playersWhoWillDraw.docs[0])
+    const turnArray = []
+    playersCollectionInfo.forEach(player => turnArray.push(player.id))
+    const drawingCollectionInfo = await db
+      .collection(`rooms/${this.roomId}/drawings`)
+      .get()
+
+    const drawingCollection = await db.collection(
+      `rooms/${this.roomId}/drawings`
+    )
+    if (drawingCollectionInfo.empty) {
+      drawingCollection.add({
+        canvasData: [...this.state.canvasData],
+        turnOrder: [...turnArray],
+        wordToGuess: ''
+      })
+    }
+    const drawingsCollectionInfo = await db
+      .collection(`rooms/${this.roomId}/drawings`)
+      .get()
+    const turnOrder = drawingsCollectionInfo.docs[0].data().turnOrder
+    this.turnOrderArray = [...turnOrder]
+  }
+
+  drawCanvas(start, end, strokeColor = 'black') {
+    const ctx = this.theCanvas.getContext('2d')
+    ctx.beginPath()
+    ctx.strokeStyle = strokeColor
+    ctx.moveTo(...start)
+    ctx.lineTo(...end)
+    ctx.closePath()
+    ctx.stroke()
+  }
+  handleMouseDown() {
+    this.setState({
+      record: true
+    })
+  }
+  async handleMouseMove(event) {
+    event.persist()
+    if (this.state.record) {
+      const latestPoint = {
+        x: event.pageX - this.theCanvas.offsetLeft,
+        y: event.pageY - this.theCanvas.offsetTop,
+        strokeColor: 'black',
+        lineWidth: 3,
+        lineEnd: false
+      }
+      this.setState({
+        canvasData: [...this.state.canvasData, latestPoint]
+      })
+      this.state.canvasData.forEach((point, idx, arr) => {
+        if (idx > 0 && idx < arr.length && arr[idx - 1].lineEnd === false) {
+          let startX = arr[idx - 1].x
+          let startY = arr[idx - 1].y
+          let endX = point.x
+          let endY = point.y
+          this.drawCanvas(
+            [startX, startY],
+            [endX, endY],
+            point.strokeColor,
+            point.lineEnd
+          )
+        }
+      })
+    }
     const roomId = 'aQFOGkBUusXJmGP808XR' // REPLACE WITH LINE ABOVE
 
-    // const drawingInstance = await db
     const drawingCollectionInfo = await db
       .collection(`rooms/${roomId}/drawings`)
       .get()
-    console.log(drawingCollectionInfo)
-    const drawingCollection = await db.collection(`rooms/${roomId}/drawings`)
-    console.log('Here is drawing collectioninfo!:', drawingCollectionInfo)
-    if (drawingCollectionInfo.empty) {
-      console.log('drawing collection is empty! Time to add some stuff@!')
-      drawingCollection.add({
-        canvasData: [this.state]
-      })
-    } else {
+
+    if (!drawingCollectionInfo.empty) {
       const drawingDoc = drawingCollectionInfo.docs[0].id
       await db.doc(`rooms/${roomId}/drawings/${drawingDoc}`).update({
-        canvasData: this.canvasData
+        canvasData: [...this.state.canvasData]
       })
     }
-    // this.setState({
-    //   canvasData
-    // })
   }
-
-  componentDidUpdate() {
-    this.drawCanvas()
+  handleMouseUp() {
+    if (this.state.canvasData.length) {
+      let endDraw = this.state.canvasData[this.state.canvasData.length - 1]
+      endDraw.lineEnd = true
+      this.setState({
+        record: false,
+        canvasData: [...this.state.canvasData, endDraw]
+      })
+    }
   }
-
-  drawCanvas() {
-    const context = this.theCanvas.getContext('2d')
-  }
-
   render() {
     return (
-      <div>
+      <div
+        onMouseDown={this.handleMouseDown}
+        onMouseMove={this.handleMouseMove}
+        onMouseUp={this.handleMouseUp}
+        onMouseOut={this.handleMouseUp}
+      >
         <canvas
           ref={canvas => (this.theCanvas = canvas)}
           height={500}
