@@ -29,13 +29,6 @@ export default class GameroomFinder extends Component {
           round: 1,
           timer: 30
         })
-        const drawingInstance = await db
-          .collection('rooms')
-          .doc(room.id)
-          .collection('drawings')
-          .add({
-            canvasData: []
-          })
         localStorage.setItem('room', room.id)
         this.props.history.push('/username-decider')
       }

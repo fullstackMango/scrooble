@@ -26,12 +26,11 @@ export default class Canvas extends Component {
     const drawingCollectionInfo = await db
       .collection(`rooms/${this.roomId}/drawings`)
       .get()
-    const drawingCollection = await db.collection(
-      `rooms/${this.roomId}/drawings`
-    )
+    console.log('drawing collection', drawingCollectionInfo.docs)
     if (drawingCollectionInfo.empty) {
-      drawingCollection.add({
-        canvasData: [...this.canvasData],
+      console.log('made it!')
+      await db.collection(`rooms/${this.roomId}/drawings`).add({
+        canvasData: [],
         turnOrder: [...turnArray],
         wordToGuess: ''
       })
@@ -57,6 +56,8 @@ export default class Canvas extends Component {
   }
   handleMouseMove(event) {
     event.persist()
+    let myTurn = this.username === this.turnOrderArray[0]
+    console.log('TURN, username', myTurn, this.username, this.turnOrderArray[0])
     if (this.record) {
       const latestPoint = {
         x: event.pageX - this.theCanvas.offsetLeft,
