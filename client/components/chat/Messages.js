@@ -37,15 +37,15 @@ export default class Messages extends Component {
       console.log(err)
     }
   }
-  async componentWillUnmount() {
-    await this.listener.unsubscribe()
-    await db
-      .collection('rooms')
-      .doc(localStorage.getItem('room'))
-      .collection('players')
-      .doc(localStorage.getItem('username'))
-      .delete()
-  }
+  // async componentWillUnmount() {
+  //   await this.listener.unsubscribe()
+  //   await db
+  //     .collection('rooms')
+  //     .doc(localStorage.getItem('room'))
+  //     .collection('players')
+  //     .doc(localStorage.getItem('username'))
+  //     .delete()
+  // }
   handleChange(event) {
     this.setState({
       [event.target.name]: event.target.value
@@ -172,16 +172,16 @@ export default class Messages extends Component {
     }
   }
   render() {
-    function flatten (arr){
-      var output = [];
-      for (var i = 0; i < arr.length; i++){
-        if (Array.isArray(arr[i])){
-          output = output.concat(flatten(arr[i]));
+    function flatten(arr) {
+      var output = []
+      for (var i = 0; i < arr.length; i++) {
+        if (Array.isArray(arr[i])) {
+          output = output.concat(flatten(arr[i]))
         } else {
-          output = output.concat(arr[i]);
+          output = output.concat(arr[i])
         }
       }
-      return output;
+      return output
     }
     let stateMessages = flatten(this.state.messages)
     return (
@@ -189,7 +189,7 @@ export default class Messages extends Component {
         <div className="chat-messages" ref={this.scroll}>
           {stateMessages.map((userAndMessage, idx) => {
             return (
-              <div key={idx} >
+              <div key={idx}>
                 {userAndMessage}
                 {'\n'}
               </div>

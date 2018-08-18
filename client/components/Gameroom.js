@@ -12,7 +12,8 @@ export default class Gameroom extends Component {
     super()
     this.state = {
       username: localStorage.getItem('username'),
-      canvasData: []
+      canvasData: [],
+      currentRound: 0
     }
   }
   async componentDidMount() {
@@ -26,6 +27,9 @@ export default class Gameroom extends Component {
       const currentGameData = currentGameGet.data()
       let currentTimer = currentGameData.timer
       let currentRound = currentGameData.round
+      this.setState({
+        currentRound
+      })
       if (currentGameData.playerCount > 0) {
         setInterval(() => {
           if (currentTimer > -1) {
@@ -37,11 +41,6 @@ export default class Gameroom extends Component {
           }
         }, 1000)
       }
-      // console.log(currentRound)
-      // if (currentRound > 3){
-      //   console.log('round > 3')
-      // }
-      //get the winner
     } catch (err) {
       console.log(err)
     }
@@ -52,6 +51,7 @@ export default class Gameroom extends Component {
     // Suggestion: when round is 1 more then a multiple of 3, it's a new round
   }
   render() {
+    const {currentRound} = this.state
     return (
       <div>
         <div className="timer">
@@ -70,7 +70,7 @@ export default class Gameroom extends Component {
           />
         </div>
         <Link to="/">Home</Link>
-        <Winner />
+        {currentRound > 3 ? <Winner /> : ''}
       </div>
     )
   }
