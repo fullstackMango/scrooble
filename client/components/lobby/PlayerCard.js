@@ -6,11 +6,12 @@ export default class PlayerCard extends Component {
     this.state = {}
   }
   render() {
-    const {name, score} = this.props
+    const {name, score, message} = this.props
     return (
       <React.Fragment>
         <div>{name}</div>
         <div>points: {score}</div>
+        <div>{message}</div>
       </React.Fragment>
     )
   }

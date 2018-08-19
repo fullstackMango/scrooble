@@ -2,14 +2,15 @@ import React, {Component} from 'react'
 import db from '../../../firestore.js'
 
 export default class Messages extends Component {
-  constructor(props) {
-    super(props)
+  constructor() {
+    super()
     this.roomId = location.pathname.slice(1)
     this.scroll = React.createRef()
     this.state = {
       message: '',
       messages: [],
-      guessedWord: false
+      guessedWord: false,
+      timer: 75
     }
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -18,34 +19,39 @@ export default class Messages extends Component {
     try {
       let allMessages = []
       const {messages} = this.state
-      this.listener = await db
+      await db
         .collection('rooms')
         .doc(this.roomId)
         .collection('chats')
         .onSnapshot(async querySnapshot => {
-          querySnapshot.forEach(col => {
-            allMessages.push(col.data().username + ': ' + col.data().message)
+          console.log(querySnapshot.docs[querySnapshot.docs.length - 1].data())
+          // querySnapshot.forEach(col => {
+          allMessages.push(
+            querySnapshot.docs[querySnapshot.docs.length - 1].data().username +
+              ': ' +
+              querySnapshot.docs[querySnapshot.docs.length - 1].data().message
+          )
+          // })
+          //if (allMessages.length) {
+          await this.setState({
+            messages: [...messages, allMessages]
           })
-          if (allMessages.length) {
-            await this.setState({
-              messages: [...messages, allMessages]
-            })
-          }
+          //}
           allMessages = []
         })
     } catch (err) {
       console.log(err)
     }
   }
-  async componentWillUnmount() {
-    await this.listener.unsubscribe()
-    await db
-      .collection('rooms')
-      .doc(localStorage.getItem('room'))
-      .collection('players')
-      .doc(localStorage.getItem('username'))
-      .delete()
-  }
+  // async componentWillUnmount() {
+  //   // await this.listener.unsubscribe()
+  //   await db
+  //     .collection('rooms')
+  //     .doc(localStorage.getItem('room'))
+  //     .collection('players')
+  //     .doc(localStorage.getItem('username'))
+  //     .delete()
+  // }
   handleChange(event) {
     this.setState({
       [event.target.name]: event.target.value
@@ -57,12 +63,12 @@ export default class Messages extends Component {
       const username = localStorage.getItem('username')
       const roomId = this.roomId
       let {message, messages} = this.state
+      const room = await db
+        .collection('rooms')
+        .doc(roomId)
+        .get()
       if (!this.state.guessedWord) {
-        const room = await db
-          .collection('rooms')
-          .doc(roomId)
-          .get()
-        const chosenWord = await room.data().chosenWord
+        const chosenWord = room.data().chosenWord
         if (message && chosenWord === message.toLowerCase()) {
           // IF CORRECT WORD (making sure not empty string, then making sure same as chosenWord)
           const responsePlayer = await db
@@ -71,8 +77,8 @@ export default class Messages extends Component {
             .collection('players')
             .doc(username)
             .get()
-          const score = await responsePlayer.data().score
-          const timeLeft = await room.data().timer
+          const score = responsePlayer.data().score
+          const timeLeft = room.data().timer
           await db
             .collection('rooms')
             .doc(roomId)
@@ -82,19 +88,11 @@ export default class Messages extends Component {
               guessedWord: true,
               score: score + timeLeft * 10
             })
-          this.setState({
-            messages: [...messages, [`${username} guessed the word!`]],
-            message: '',
-            guessedWord: true
-          })
-          const documentNumberResponse = await db
-            .collection('rooms')
-            .doc(this.roomId)
-            .get()
-          const documentNumber = documentNumberResponse.data().messageCount
+          const documentNumber = room.data().messageCount
           await db
             .collection('rooms')
-            .doc(this.roomId)
+            .doc(roomId)
+            .collection('chats')
             .doc((documentNumber + 1).toString())
             .set({
               username,
@@ -102,22 +100,20 @@ export default class Messages extends Component {
             })
           await db
             .collection('rooms')
-            .doc(this.roomId)
+            .doc(roomId)
             .update({
               messageCount: documentNumber + 1
             })
           this.setState({
-            messages: [...messages, `${username} guessed the word!`],
-            message: ''
+            //messages: [...messages, `${username} guessed the word!`],
+            message: '',
+            guessedWord: true
           })
           // end of turn, loop through each player and make guessed equal to false
         } else {
-          const userAndMessage = `${username}: ${message}`
-          const documentNumberResponse = await db
-            .collection('rooms')
-            .doc(this.roomId)
-            .get()
-          const documentNumber = documentNumberResponse.data().messageCount
+          // get messagecount
+          const documentNumber = room.data().messageCount
+          // set the message in firebase
           await db
             .collection('rooms')
             .doc(this.roomId)
@@ -127,6 +123,7 @@ export default class Messages extends Component {
               username,
               message
             })
+          // update firebase messagecount
           await db
             .collection('rooms')
             .doc(this.roomId)
@@ -134,22 +131,17 @@ export default class Messages extends Component {
               messageCount: documentNumber + 1
             })
           this.setState({
-            messages: [...messages, userAndMessage],
+            //messages: [...messages, userAndMessage],
             message: ''
           })
         }
       } else {
-        // if they have already guessed and trying to type more during this 'turn'
+        // if they have already guessed the word and trying to type more during this 'turn'
         this.setState({
           messages: [...messages, `You already guessed the word! 😄`],
           message: ''
         })
-        const documentNumberResponse = await db
-          .collection('rooms')
-          .doc(this.roomId)
-          .collection('chats')
-          .get()
-        const documentNumber = documentNumberResponse.data().messageCount
+        const documentNumber = room.data().messageCount
         await db
           .collection('rooms')
           .doc(this.roomId)
@@ -172,24 +164,25 @@ export default class Messages extends Component {
     }
   }
   render() {
-    function flatten (arr){
-      var output = [];
-      for (var i = 0; i < arr.length; i++){
-        if (Array.isArray(arr[i])){
-          output = output.concat(flatten(arr[i]));
-        } else {
-          output = output.concat(arr[i]);
-        }
-      }
-      return output;
-    }
-    let stateMessages = flatten(this.state.messages)
+    // function flatten(arr) {
+    //   var output = []
+    //   for (var i = 0; i < arr.length; i++) {
+    //     if (Array.isArray(arr[i])) {
+    //       output = output.concat(flatten(arr[i]))
+    //     } else {
+    //       output = output.concat(arr[i])
+    //     }
+    //   }
+    //   return output
+    // }
+    let stateMessages = this.state.messages
+    console.log('stateMessages is', stateMessages)
     return (
       <div className="chat">
         <div className="chat-messages" ref={this.scroll}>
           {stateMessages.map((userAndMessage, idx) => {
             return (
-              <div key={idx} >
+              <div key={idx}>
                 {userAndMessage}
                 {'\n'}
               </div>
@@ -205,7 +198,7 @@ export default class Messages extends Component {
             placeholder="Make guesses here!"
             className="input"
           />
-          <button type="Submit">GO</button>
+          <button type="submit">GO</button>
         </form>
       </div>
     )

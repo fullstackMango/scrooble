@@ -13,10 +13,10 @@ export default class Canvas extends Component {
     this.username = localStorage.getItem('username')
     this.turnOrderArray = []
     this.drawingDocId = ''
-    this.time = ''
     this.roomInstanceInfo = ''
     this.color = 'black'
     this.lineWidth = 3
+    this.drawer = ''
 
     this.handleMouseDown = this.handleMouseDown.bind(this)
     this.handleMouseUp = this.handleMouseUp.bind(this)
@@ -38,11 +38,11 @@ export default class Canvas extends Component {
         canvasData: []
       })
     }
-    this.drawingDocId = drawingCollectionInfo.docs[0].id
-
+    const updatedDrawingCollectionInfo = await db
+      .collection(`rooms/${this.roomId}/drawings`)
+      .get()
+    this.drawingDocId = updatedDrawingCollectionInfo.docs[0].id
     this.roomInstanceInfo = await db.doc(`rooms/${this.roomId}`).get()
-    this.time = this.roomInstanceInfo.data().timer
-
     if (
       this.roomInstanceInfo.data().turnOrder === undefined ||
       !this.roomInstanceInfo.data().turnOrder.length
@@ -61,6 +61,16 @@ export default class Canvas extends Component {
     })
     const updatedRoomInstanceInfo = await db.doc(`rooms/${this.roomId}`).get()
     this.turnOrderArray = [...updatedRoomInstanceInfo.data().turnOrder]
+    this.drawer = this.turnOrderArray[0]
+    const updatedRoomInfo = await db.doc(`rooms/${this.roomId}`).get()
+    const currentRoundUpdated = updatedRoomInfo.data().round + 1
+    if (currentRoundUpdated > 4) {
+      setTimeout(() => this.props.history.push('/'), 5000)
+    } else if (currentRoundUpdated < 4 && this.drawer === this.username) {
+      await db.doc(`rooms/${this.roomId}`).update({
+        round: currentRoundUpdated
+      })
+    }
   }
   drawCanvas(start, end, strokeColor = 'black', lineWidth) {
     const ctx = this.theCanvas.getContext('2d')
@@ -76,19 +86,24 @@ export default class Canvas extends Component {
     const ctx = this.theCanvas.getContext('2d')
     ctx.clearRect(0, 0, this.theCanvas.width, this.theCanvas.height)
     this.canvasData = []
-    await db.doc(`rooms/${this.roomId}/drawings`).update({
+    await db.doc(`rooms/${this.roomId}/drawings/${this.drawingDocId}`).update({
       canvasData: []
     })
   }
   startTurnCountdown() {
-    let milliseconds = this.time * 1000
     setTimeout(async () => {
+      if (this.drawer === this.username && this.turnOrderArray.length === 1) {
+        return this.startNewRound()
+      }
       this.turnOrderArray.shift()
+      this.drawer = this.turnOrderArray[0]
       await this.ifNextPlayerNotHereRemove()
       await db.doc(`rooms/${this.roomId}`).update({
         turnOrder: [...this.turnOrderArray]
       })
-    }, milliseconds)
+      // await this.clearCanvas()
+    }, 75000)
+
     // if (!this.roomInstanceInfo.data().turnOrder.length) this.startNewRound()
   }
 
@@ -122,6 +137,7 @@ export default class Canvas extends Component {
 
       this.canvasData.push(latestPoint)
 
+      //enddraw.lineEnd = true, latestPoint.lineEnd = false
       this.canvasData.forEach((point, idx, arr) => {
         if (idx > 0 && idx < arr.length && arr[idx - 1].lineEnd === false) {
           let startX = arr[idx - 1].x
@@ -132,8 +148,7 @@ export default class Canvas extends Component {
             [startX, startY],
             [endX, endY],
             point.strokeColor,
-            point.lineWidth,
-            point.lineEnd
+            point.lineWidth
           )
         }
       })
@@ -150,7 +165,7 @@ export default class Canvas extends Component {
     if (this.canvasData.length && myTurn) {
       let endDraw = this.canvasData[this.canvasData.length - 1]
       endDraw.lineEnd = true
-      this.canvasData.push(endDraw)
+      // this.canvasData.push(endDraw)
       this.record = false
       await db
         .doc(`rooms/${this.roomId}/drawings/${this.drawingDocId}`)
@@ -166,21 +181,28 @@ export default class Canvas extends Component {
         .doc(`rooms/${this.roomId}/drawings/${this.drawingDocId}`)
         .onSnapshot(doc => {
           let canvasData = doc.data().canvasData
-          canvasData.forEach((point, idx, arr) => {
-            if (idx > 0 && idx < arr.length && arr[idx - 1].lineEnd === false) {
-              let startX = arr[idx - 1].x
-              let startY = arr[idx - 1].y
-              let endX = point.x
-              let endY = point.y
-              this.drawCanvas(
-                [startX, startY],
-                [endX, endY],
-                point.strokeColor,
-                point.lineWidth,
-                point.lineEnd
-              )
-            }
-          })
+          if (!canvasData.length) {
+            this.clearCanvas()
+          } else {
+            canvasData.forEach((point, idx, arr) => {
+              if (
+                idx > 0 &&
+                idx < arr.length &&
+                arr[idx - 1].lineEnd === false
+              ) {
+                let startX = arr[idx - 1].x
+                let startY = arr[idx - 1].y
+                let endX = point.x
+                let endY = point.y
+                this.drawCanvas(
+                  [startX, startY],
+                  [endX, endY],
+                  point.strokeColor,
+                  point.lineWidth
+                )
+              }
+            })
+          }
         })
     }
   }
