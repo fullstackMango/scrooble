@@ -250,11 +250,11 @@ export default class Canvas extends Component {
           {/* )} */}
           <canvas
             ref={canvas => (this.theCanvas = canvas)}
-            height={593}
-            width={834}
+            height={815}
+            width={1110}
           />
         </div>
-        <div id="round-text">ROUND {this.round} OF 3</div>
+        {/* <div id="round-text">ROUND {this.round} OF 3</div> */}
         <div id="color-pallete">
           <button
             type="button"
