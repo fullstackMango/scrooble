@@ -451,7 +451,62 @@ img.eraser {
   color: #ffffff;
 }
 
+<<<<<<< HEAD
+.choose-word-card {
+  background-color: rgba(0, 0, 0, 0.7);
+  display: inline-block;
+  position: absolute;
+  top: 17vw;
+  left: 8vw;
+  height: 19vw;
+  width: 83vw;
+  border-radius: 1vw;
+}
+
+.choose-word-text {
+  text-align: center;
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.choose-word-button {
+  font-family: Verdana;
+  background-color: orange;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.choose-word-button:hover {
+  font-family: Verdana;
+  background-color: rgb(255, 121, 59);
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.choose-buttons-margin {
+  margin-top: 10px;
+}
+
+.loading-text {
+=======
 .loading-text2 {
+>>>>>>> master
   font-size: 40px;
   text-align: center;
   margin: 10vw 30vw;

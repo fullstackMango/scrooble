@@ -78,23 +78,31 @@ export default class ChooseWordPrompt extends Component {
   // }
   render() {
     return (
-      <Fragment>
-        <div>
-          Choose one of these words to draw!
-          {this.state.threeWords.map(word => {
-            return (
-              <button
-                key={word[0]}
-                type="submit"
-                onClick={() => this.handleSubmit(word[1])}
-              >
-                {word[1]}
-              </button>
-            )
-          })}
+      <div className="choose-word-card">
+        <div className="choose-word-text">
+          <div>
+            Choose one of these words to draw!
+            <div className="choose-buttons-margin">
+              {this.state.threeWords.map(word => {
+                return (
+                  <div>
+                    <button
+                      className="choose-word-button"
+                      key={word[0]}
+                      type="submit"
+                      onClick={() => this.handleSubmit(word[1])}
+                    >
+                      {word[1]}
+                    </button>
+                    <br />
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          <div>{this.state.time}</div>
         </div>
-        <div>{this.state.time}</div>
-      </Fragment>
+      </div>
     )
   }
 }
