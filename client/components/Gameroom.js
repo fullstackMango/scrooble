@@ -34,13 +34,13 @@ export default class Gameroom extends Component {
     await db
       .collection('rooms')
       .doc(this.roomId)
-      .onSnapshot(doc => {
+      .onSnapshot(async doc => {
         if (doc.data().turnOrder[0] === this.state.username) {
-          this.setState({
+          await this.setState({
             myTurn: true
           })
         } else {
-          this.setState({
+          await this.setState({
             myTurn: false
           })
         }
