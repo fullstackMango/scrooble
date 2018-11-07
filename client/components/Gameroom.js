@@ -48,14 +48,7 @@ export default class Gameroom extends Component {
           chosenWord: doc.data().chosenWord
         })
       })
-    // setTimeout(async () => {
-    //   const room = await db
-    //     .collection('rooms')
-    //     .doc(this.roomId)
-    //     .get()
-    //   //const player = room.data().turnOrder[0] || ''
-    //   this.myTurn = room.data().turnOrder[0] === this.state.username
-    // }, 3000)
+
     window.onbeforeunload = this.leaveGame
     // The choose word prompt should appear if it's the player's turn (if the player in localstorage matches the first player in the array)
     // at the end of the turn, pop the player from the array
@@ -80,6 +73,11 @@ export default class Gameroom extends Component {
         this.setState({
           hasPickedWord: false,
           time: 75
+        })
+      }
+      if (this.state.myTurn) {
+        this.setState({
+          myTurn: false
         })
       }
     }, 1000)
