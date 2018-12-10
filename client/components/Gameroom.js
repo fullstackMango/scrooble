@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import db from '../../firestore.js'
-// import Chat from './chat'
 import Lobby from './lobby'
 import Canvas from './canvas'
 import { Link } from 'react-router-dom'
-// import Timer from './canvas/Timer'
 import Winner from './Winner'
 import ChooseWordPrompt from './canvas/ChooseWordPrompt.js'
 import Hangman from './Hangman'
@@ -34,13 +32,13 @@ export default class Gameroom extends Component {
     await db
       .collection('rooms')
       .doc(this.roomId)
-      .onSnapshot(doc => {
+      .onSnapshot(async doc => {
         if (doc.data().turnOrder[0] === this.state.username) {
-          this.setState({
+          await this.setState({
             myTurn: true
           })
         } else {
-          this.setState({
+          await this.setState({
             myTurn: false
           })
         }
@@ -72,6 +70,11 @@ export default class Gameroom extends Component {
         this.setState({
           hasPickedWord: false,
           time: 75
+        })
+      }
+      if (this.state.myTurn) {
+        this.setState({
+          myTurn: false
         })
       }
     }, 1000)
