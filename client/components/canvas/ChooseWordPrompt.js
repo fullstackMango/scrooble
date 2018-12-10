@@ -12,7 +12,6 @@ export default class ChooseWordPrompt extends Component {
   }
   async componentDidMount() {
     try {
-      //this.countdown()
       const response = await db
         .collection('words')
         .doc('words')
@@ -59,23 +58,6 @@ export default class ChooseWordPrompt extends Component {
       console.log(err)
     }
   }
-  // countdown() {
-  //   let currTime = this.state.time
-  //   const timer = setInterval(() => {
-  //     // const timer necessary in order to stop it later with clearInterval
-  //     if (currTime > -1) {
-  //       this.setState({
-  //         time: currTime--
-  //       })
-  //     } else {
-  //       localStorage.setItem('username', null)
-  //       localStorage.setItem('room', null)
-  //       // delete player from room -- grab current players, then update without player from localStorage.getItem('user')
-  //       this.props.history.push('/')
-  //       clearInterval(timer)
-  //     }
-  //   }, 1000)
-  // }
   render() {
     return (
       <div className="choose-word-card">

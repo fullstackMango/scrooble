@@ -15,7 +15,7 @@ export default class Seed extends React.Component {
     alert('Seed done')
   }
   render() {
-    let words = `aircraft carrier
+                  let words = `aircraft carrier
 airplane
 alarm clock
 ambulance

@@ -1,10 +1,8 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import db from '../../firestore.js'
-import Chat from './chat'
 import Lobby from './lobby'
 import Canvas from './canvas'
-import {Link} from 'react-router-dom'
-import Timer from './canvas/Timer'
+import { Link } from 'react-router-dom'
 import Winner from './Winner'
 import ChooseWordPrompt from './canvas/ChooseWordPrompt.js'
 import Hangman from './Hangman'
@@ -48,7 +46,6 @@ export default class Gameroom extends Component {
           chosenWord: doc.data().chosenWord
         })
       })
-
     window.onbeforeunload = this.leaveGame
     // The choose word prompt should appear if it's the player's turn (if the player in localstorage matches the first player in the array)
     // at the end of the turn, pop the player from the array
@@ -83,7 +80,7 @@ export default class Gameroom extends Component {
     }, 1000)
   }
   handleChosenWord() {
-    this.setState({hasPickedWord: true})
+    this.setState({ hasPickedWord: true })
   }
   renderWinner() {
     this.setState({
@@ -91,7 +88,7 @@ export default class Gameroom extends Component {
     })
   }
   render() {
-    const {someoneWon, time, canvasData, myTurn, hasPickedWord} = this.state
+    const { someoneWon, time, canvasData, myTurn, hasPickedWord } = this.state
     return (
       <div className="gameroom-body">
         <div className="navbar">
@@ -126,17 +123,11 @@ export default class Gameroom extends Component {
               canvasData={canvasData}
               renderWinner={this.renderWinner}
               history={this.props.history}
+              myTurn={this.state.myTurn}
             />
           </div>
           <div className="clear" />
         </div>
-        {/* <div className="chatbox">
-          <Chat
-            roomId={this.props.match.params.gameroom}
-            username={this.state.username}
-          />
-        </div> */}
-        {/* <Link to="/">Home</Link> */}
         {someoneWon ? <Winner /> : ''}
         {myTurn && !hasPickedWord ? (
           <ChooseWordPrompt handleChosenWord={this.handleChosenWord} />

@@ -2,10 +2,6 @@ import React, {Component} from 'react'
 import db from '../../../firestore'
 import PlayerCard from './PlayerCard'
 
-// winner screen
-// shift for the next drawer so next person gets choosewordprompt
-// hangman
-
 export default class Lobby extends Component {
   constructor(props) {
     super(props)
@@ -13,7 +9,6 @@ export default class Lobby extends Component {
       players: [],
       message: '',
       currentChosenWord: '',
-      disabled: '',
       guessedWord: false,
       score: 0
     }
@@ -60,13 +55,6 @@ export default class Lobby extends Component {
             guessedWord: false
           })
         })
-
-      // const chatInstanceInfo = await db
-      //   .collection('rooms')
-      //   .doc(this.roomId)
-      //   .collection('chats')
-      //   .get()
-      // this.chatId = chatInstanceInfo.docs[0].id
     } catch (err) {
       console.log(err)
     }

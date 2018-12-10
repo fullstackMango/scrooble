@@ -9,14 +9,6 @@ export default class Homepage extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
   }
-  // componentDidMount() {
-  //   const snapshot = db.collection('rooms').doc('5J2RcS6VBh9zZSxRnLhW').collection('players')
-  //   snapshot.get().then(result => {
-  //     result.forEach(player=> {
-  //       console.log(player.data())
-  //     })
-  //   })
-  // }
   handleChange(event) {
     this.setState({
       [event.target.name]: event.target.value

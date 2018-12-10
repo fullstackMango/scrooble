@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import db from '../../../firestore.js'
 
 export default class UsernameDecider extends Component {
@@ -31,14 +31,14 @@ export default class UsernameDecider extends Component {
       const roomInfo = await db.doc(`rooms/${gameRoomId}`).get()
       let waitingRoom = roomInfo.data().waitingRoom
       if (waitingRoom < 2) {
-        this.setState({morePlayers: true})
+        this.setState({ morePlayers: true })
         await db.doc(`rooms/${this.roomId}`).onSnapshot(room => {
           if (room.data().waitingRoom > 1) {
             this.props.history.push(`/${gameRoomId}`)
           }
         })
       } else {
-        this.setState({morePlayers: false})
+        this.setState({ morePlayers: false })
         await db.doc(`rooms/${gameRoomId}`).onSnapshot(doc => {
           if (
             doc.data().turnOrder.length !== roomInfo.data().turnOrder.length
