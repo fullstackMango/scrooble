@@ -45,7 +45,7 @@ export default class Canvas extends Component {
     this.getDrawing()
     if (
       this.roomInstanceInfo.data().turnOrder === undefined ||
-      !this.roomInstanceInfo.data().turnOrder.length
+      !this.roomInstanceInfo.data().turnOrder.length || this.roomInstanceInfo.data().turnOrder.length === 1
     ) {
       await this.startNewRound()
     } else {

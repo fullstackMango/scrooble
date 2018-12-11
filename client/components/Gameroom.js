@@ -33,7 +33,7 @@ export default class Gameroom extends Component {
     await db
       .collection('rooms')
       .doc(this.roomId)
-      .onSnapshot(doc => {
+      .onSnapshot(async doc => {
         if (doc.data().turnOrder[0] === this.state.username) {
           this.setState({
             myTurn: true,
@@ -48,7 +48,6 @@ export default class Gameroom extends Component {
         // this.setState({
         //     chosenWord: doc.data().chosenWord
         //   })
-
         if (doc.data().chosenWord !== this.state.chosenWord) {
           this.setState({
             chosenWord: doc.data().chosenWord
@@ -79,6 +78,11 @@ export default class Gameroom extends Component {
         this.setState({
           hasPickedWord: false,
           time: 75
+        })
+      }
+      if (this.state.myTurn) {
+        this.setState({
+          myTurn: false
         })
       }
     }, 1000)
