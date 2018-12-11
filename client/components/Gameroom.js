@@ -17,7 +17,8 @@ export default class Gameroom extends Component {
       time: 75,
       hasPickedWord: false,
       myTurn: false,
-      chosenWord: ''
+      chosenWord: '',
+      showWordsToPick: false
     }
     this.renderWinner = this.renderWinner.bind(this)
     this.handleChosenWord = this.handleChosenWord.bind(this)
@@ -34,17 +35,24 @@ export default class Gameroom extends Component {
       .doc(this.roomId)
       .onSnapshot(async doc => {
         if (doc.data().turnOrder[0] === this.state.username) {
-          await this.setState({
-            myTurn: true
+          this.setState({
+            myTurn: true,
+            showWordsToPick: true
           })
         } else {
-          await this.setState({
-            myTurn: false
+          this.setState({
+            myTurn: false,
+            showWordsToPick: false
           })
         }
-        this.setState({
-          chosenWord: doc.data().chosenWord
-        })
+        // this.setState({
+        //     chosenWord: doc.data().chosenWord
+        //   })
+        if (doc.data().chosenWord !== this.state.chosenWord) {
+          this.setState({
+            chosenWord: doc.data().chosenWord
+          })
+        }
       })
     window.onbeforeunload = this.leaveGame
     // The choose word prompt should appear if it's the player's turn (if the player in localstorage matches the first player in the array)
@@ -80,7 +88,7 @@ export default class Gameroom extends Component {
     }, 1000)
   }
   handleChosenWord() {
-    this.setState({ hasPickedWord: true })
+    this.setState({ hasPickedWord: true, showWordsToPick: false })
   }
   renderWinner() {
     this.setState({
@@ -88,7 +96,7 @@ export default class Gameroom extends Component {
     })
   }
   render() {
-    const { someoneWon, time, canvasData, myTurn, hasPickedWord } = this.state
+    const { someoneWon, time, canvasData, myTurn, hasPickedWord, showWordsToPick } = this.state
     return (
       <div className="gameroom-body">
         <div className="navbar">
@@ -129,8 +137,9 @@ export default class Gameroom extends Component {
           <div className="clear" />
         </div>
         {someoneWon ? <Winner /> : ''}
-        {myTurn && !hasPickedWord ? (
-          <ChooseWordPrompt handleChosenWord={this.handleChosenWord} />
+      {/* <ChooseWordPrompt handleChosenWord={this.handleChosenWord} hasPickedWord={this.state.hasPickedWord}/> */}
+        {myTurn && !hasPickedWord && !someoneWon && showWordsToPick ? (
+          <ChooseWordPrompt handleChosenWord={this.handleChosenWord}/>
         ) : (
           ''
         )}
