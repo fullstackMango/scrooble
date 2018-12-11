@@ -4,8 +4,8 @@ import React, { Component } from 'react'
 import db, { fdb } from '../../../firestore.js'
 
 export default class Canvas extends Component {
-  constructor(props) {
-    super(props)
+  constructor() {
+    super()
     this.state = {
       round: 1
     }
@@ -45,7 +45,7 @@ export default class Canvas extends Component {
     this.getDrawing()
     if (
       this.roomInstanceInfo.data().turnOrder === undefined ||
-      !this.roomInstanceInfo.data().turnOrder.length || this.roomInstanceInfo.data().turnOrder.length === 1
+      !this.roomInstanceInfo.data().turnOrder.length
     ) {
       await this.startNewRound()
     } else {
@@ -56,11 +56,6 @@ export default class Canvas extends Component {
           if (this.turnOrderArray.length !== doc.data().turnOrder.length) {
             this.turnOrderArray = doc.data().turnOrder
             this.startTurnCountdown()
-          }
-          if (this.state.round !== doc.data().round) {
-            this.setState({
-              round: doc.data().round
-            })
           }
         })
     }
@@ -87,8 +82,8 @@ export default class Canvas extends Component {
         console.log('GAME OVER!')
       }, 100000000)
     } else if (
-      currentRoundUpdated < 4 && this.props.myTurn
-      // this.turnOrderArray[0] == this.username
+      currentRoundUpdated < 4 &&
+      this.turnOrderArray[0] == this.username
     ) {
       console.log(currentRoundUpdated, 'current round updated')
       // updating round on firebase if it's less than 4 and current drawer is the user
@@ -142,19 +137,18 @@ export default class Canvas extends Component {
         console.log('before shift', this.turnOrderArray)
         this.turnOrderArray.shift()
         console.log('after shift', this.turnOrderArray)
-        // await this.ifNextPlayerNotHereRemove()
+        await this.ifNextPlayerNotHereRemove()
         // this.drawer = this.turnOrderArray[0]
-
-        console.log('start turn countdown', this.turnOrderArray)
-        await db.doc(`rooms/${this.roomId}`).update({
-          turnOrder: [...this.turnOrderArray]
-        })
         console.log(
           'array at 0 + username',
           this.turnOrderArray[0],
           this.username,
           this.props.myTurn // added
         )
+        console.log('start turn countdown', this.turnOrderArray)
+        await db.doc(`rooms/${this.roomId}`).update({
+          turnOrder: [...this.turnOrderArray]
+        })
         await this.clearCanvas()
         this.startTurnCountdown()
       }
@@ -180,7 +174,6 @@ export default class Canvas extends Component {
     }
   }
   handleMouseDown() {
-
     // let myTurn = this.username === this.turnOrderArray[0]
     if (this.props.myTurn) this.record = true
   }

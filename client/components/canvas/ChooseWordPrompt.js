@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, {Component, Fragment} from 'react'
 import db from '../../../firestore.js'
 
 export default class ChooseWordPrompt extends Component {
@@ -31,11 +31,7 @@ export default class ChooseWordPrompt extends Component {
           thirdWord !== firstWord
         ) {
           this.setState({
-            threeWords: [
-              [1, firstWord],
-              [2, secondWord],
-              [3, thirdWord]
-            ]
+            threeWords: [[1, firstWord], [2, secondWord], [3, thirdWord]]
           })
           // then, eliminate these three words from possible words for this game (i.e. for this room)! --> what if out of words? then all words come back.
           // all the words should be pushed to the room in some way, and then eliminated as users go through. keep in mind there are only 345 words.
@@ -69,11 +65,12 @@ export default class ChooseWordPrompt extends Component {
           <div>
             Choose one of these words to draw!
             <div className="choose-buttons-margin">
-              {this.state.threeWords.map((word, idx) => {
+              {this.state.threeWords.map(word => {
                 return (
-                  <div key={idx}>
+                  <div>
                     <button
                       className="choose-word-button"
+                      key={word[0]}
                       type="submit"
                       onClick={() => this.handleSubmit(word[1])}
                     >
