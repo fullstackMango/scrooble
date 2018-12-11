@@ -126,7 +126,7 @@ export default class Gameroom extends Component {
           <div className="clear" />
         </div>
         {someoneWon ? <Winner /> : ''}
-        {myTurn && !hasPickedWord ? (
+        {myTurn && !hasPickedWord && !someoneWon ? (
           <ChooseWordPrompt handleChosenWord={this.handleChosenWord} />
         ) : (
           ''
