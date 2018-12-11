@@ -88,7 +88,7 @@ export default class Gameroom extends Component {
     }, 1000)
   }
   handleChosenWord() {
-    this.setState({ hasPickedWord: true, showWordsToPick: false })
+    this.setState({ hasPickedWord: true })
   }
   renderWinner() {
     this.setState({
